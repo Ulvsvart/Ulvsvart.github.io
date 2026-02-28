@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4 meses contigo 💕</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #fff0f5;
+    --card-bg: #fffcfd;
+    --accent: #ff3366;
+    --accent2: #ff99cc;
+    --text: #3a2a2e;
+    --muted: #7a5c65;
+  }
+
+  body {
+    min-height: 100vh;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    font-family: 'Lora', serif;
+    overflow-x: hidden;
+    cursor: default;
+    /* soft vignette */
+    background-image: radial-gradient(ellipse at center, #fff8fa 0%, #ffd6e7 100%);
+  }
+
+  /* ── Floating background elements ── */
+  #bg-canvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .floater {
+    position: absolute;
+    animation: floatUp linear infinite;
+    user-select: none;
+    will-change: transform, opacity;
+  }
+
+  @keyframes floatUp {
+    0%   { transform: translateY(0) translateX(0); opacity: var(--op); }
+    25%  { transform: translateY(-25vh) translateX(8px); opacity: var(--op); }
+    50%  { transform: translateY(-50vh) translateX(-6px); opacity: var(--op); }
+    75%  { transform: translateY(-75vh) translateX(10px); opacity: var(--op); }
+    100% { transform: translateY(-105vh) translateX(0); opacity: 0; }
+  }
+
+  /* ── Card wrapper ── */
+  #card-wrapper {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+
+  /* ── The Letter ── */
+  #letter {
+    background: var(--card-bg);
+    background-image:
+      repeating-linear-gradient(
+        transparent,
+        transparent 27px,
+        rgba(255,150,180,0.08) 27px,
+        rgba(255,150,180,0.08) 28px
+      ),
+      linear-gradient(135deg, #fffcfd 0%, #fff6f9 50%, #fffcfd 100%);
+    border-radius: 15px;
+    box-shadow:
+      0 4px 6px rgba(180,60,90,0.06),
+      0 10px 30px rgba(180,60,90,0.10),
+      0 30px 60px rgba(180,60,90,0.08),
+      inset 0 0 0 1px rgba(255,200,220,0.5);
+    padding: 40px 32px 36px;
+    width: min(680px, 85vw);
+    max-height: 80vh;
+    overflow-y: auto;
+    opacity: 0;
+    animation: fadeIn 1.5s ease forwards;
+    transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
+    transform-origin: center center;
+    scroll-behavior: smooth;
+  }
+
+  /* Custom scrollbar */
+  #letter::-webkit-scrollbar { width: 4px; }
+  #letter::-webkit-scrollbar-track { background: transparent; }
+  #letter::-webkit-scrollbar-thumb { background: rgba(255,100,150,0.3); border-radius: 4px; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.96) translateY(12px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  /* ── Letter content ── */
+  .letter-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.8rem, 5vw, 2.6rem);
+    font-weight: 600;
+    color: var(--accent);
+    text-align: center;
+    letter-spacing: 0.02em;
+    margin-bottom: 28px;
+    line-height: 1.2;
+  }
+
+  .letter-title::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent2), transparent);
+    margin: 12px auto 0;
+  }
+
+  .letter-body {
+    font-size: clamp(15px, 2.5vw, 16px);
+    line-height: 1.8;
+    color: var(--text);
+    white-space: pre-wrap;
+  }
+
+  .letter-body p {
+    margin-bottom: 1.2em;
+  }
+
+  .letter-signature {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    color: var(--accent);
+    text-align: right;
+    margin-top: 24px;
+    line-height: 1.6;
+  }
+
+  /* ── Zoom controls ── */
+  #zoom-controls {
+    position: fixed;
+    bottom: 24px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 100;
+  }
+
+  .zoom-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,100,150,0.3);
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(8px);
+    color: var(--accent);
+    font-size: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 12px rgba(255,100,150,0.15);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  .zoom-btn:hover { background: rgba(255,255,255,0.97); transform: scale(1.08); }
+  .zoom-btn:active { transform: scale(0.93); }
+
+  /* ── Puff hearts ── */
+  .puff-heart {
+    position: fixed;
+    pointer-events: none;
+    z-index: 999;
+    font-size: 20px;
+    animation: puffOut 1.5s ease-out forwards;
+    will-change: transform, opacity;
+    user-select: none;
+  }
+
+  @keyframes puffOut {
+    0%   { transform: translate(0,0) scale(0.4); opacity: 1; }
+    60%  { opacity: 0.9; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(1); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Floating background -->
+<div id="bg-canvas"></div>
+
+<!-- Zoom controls -->
+<div id="zoom-controls">
+  <button class="zoom-btn" id="zoomIn" title="Acercar" aria-label="Acercar">+</button>
+  <button class="zoom-btn" id="zoomReset" title="Restablecer" aria-label="Restablecer">⟳</button>
+  <button class="zoom-btn" id="zoomOut" title="Alejar" aria-label="Alejar">−</button>
+</div>
+
+<!-- Card -->
+<div id="card-wrapper">
+  <div id="letter">
+    <h1 class="letter-title">4 meses contigo</h1>
+    <div class="letter-body">
+      <p>Mi amor,</p>
+      <p>¿Sabes qué es lo primero que pienso al despertar? No es "qué hora es", ni "qué tengo que hacer". Es simplemente tu nombre. Pero no como una palabra, sino como esa sensación cálida en el pecho que aparece cuando pienso en todo lo que eres y en todo lo que me haces sentir.</p>
+      <p>A veces me pongo a pensar en lo loco que es esto. En cómo la vida pone frente a ti a la persona más importante sin preguntar si está cerca o lejos. Sin avisar. Y simplemente llega un día en que tu mundo, que antes era de un color, de repente se llena de matices que no sabías que existían. Eso pasó cuando te conocí. Llegaste y, de la nada, lo cambiaste todo.</p>
+      <p>Me encanta conocerte. Me encanta descubrir cada día una nueva versión tuya. Me encanta cómo te ríes de mis tonterías, cómo te emocionas con cosas pequeñas, cómo defiendes lo que quieres con esa fuerza que tienes. Me encanta tu forma de ver la vida, incluso cuando el mundo se empeña en ponerse gris. Y sobre todo, me encanta que, a pesar de los kilómetros, nunca te has sentido lejos de mi corazón. Porque no lo estás. Vives aquí, en cada pensamiento, en cada sonrisa tonta que se me escapa cuando recuerdo algo tuyo.</p>
+      <p>Contigo he aprendido que el amor no entiende de distancias, ni de tiempo, ni de lógica. El amor simplemente es. Y el nuestro es de esos que se sienten reales, de los que pesan, de los que importan. No es un amor de juego, es un amor de sentir. De esos que te hacen llorar de la risa y reírte del destino por habernos cruzado.</p>
+      <p>Quiero que sepas que eres importante. Pero no importante así, de pasada. Eres de las personas más importantes que han pasado por mi vida. Eres de las que dejan huella, de las que marcan un antes y un después. Y aunque a veces no encuentre las palabras perfectas o no sepa expresar todo lo que guardo, quiero que nunca, nunca dudes de lo que significas para mí.</p>
+      <p>Porque cuando te miro (aunque sea a través de una pantalla), no veo una foto. Veo mi futuro. Veo con quien quiero compartir los días buenos y los días malos, los silencios y las charlas hasta la madrugada. Te veo a ti, con todo lo que eres, y pienso: "Qué suerte tengo. Qué suerte tan inmensa."</p>
+      <p>Prometo seguir eligiéndote. Todos los días. En las buenas y en las complicadas. En los días de risa y en los días de tormenta. Prometo no soltarte nunca, aunque a veces el viento sople fuerte. Y prometo recordarte siempre, por si un día lo olvidas, lo increíblemente valiosa y amada que eres.</p>
+      <p>Esta carta es solo un pequeño intento de envolver en palabras todo lo que llevo dentro. Ojalá pudieras verlo con los ojos, porque entonces sabrías que lo que siento por ti no cabe en un mensaje. Pero mientras tanto, espero que al leer esto, siquiera por un segundo, hayas sentido ese abrazo que te mando con el alma.</p>
+      <p>Eres mi persona. Y lo sabes.</p>
+      <p>Con todo el amor que me cabe en el pecho y un poquito más, felices 4 meses mi vida.</p>
+    </div>
+    <div class="letter-signature">
+      Te ama, tu Nei 💕<br>
+      <span style="font-size:0.85em;color:var(--accent2);">❤️&nbsp;siempre&nbsp;❤️</span>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─────────────────────────────────────────
+   1. FLOATING BACKGROUND ELEMENTS
+───────────────────────────────────────── */
+(function() {
+  const canvas = document.getElementById('bg-canvas');
+  const emojis = ['❤️','🐺','❤️','💕','🐺','❤️','💗','🐺','❤️','💓'];
+  const COUNT = 22;
+
+  function createFloater() {
+    const el = document.createElement('span');
+    el.className = 'floater';
+    el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+
+    const size = 20 + Math.random() * 40; // 20-60px
+    const opacity = 0.1 + Math.random() * 0.3; // 0.1-0.4
+    const duration = 15 + Math.random() * 12; // 15-27s
+    const left = Math.random() * 100; // %
+    // Stagger start: some at top, some at bottom, some mid
+    const startY = Math.random() * 100; // vh units offset via delay trick
+
+    el.style.cssText = `
+      font-size: ${size}px;
+      left: ${left}%;
+      bottom: ${-10 + Math.random() * -20}%;
+      --op: ${opacity};
+      animation-duration: ${duration}s;
+      animation-delay: ${-Math.random() * duration}s;
+    `;
+    canvas.appendChild(el);
+  }
+
+  for (let i = 0; i < COUNT; i++) createFloater();
+})();
+
+/* ─────────────────────────────────────────
+   2. ZOOM CONTROLS
+───────────────────────────────────────── */
+(function() {
+  const letter = document.getElementById('letter');
+  let scale = 1;
+  const STEP = 0.1;
+  const MIN = 0.6;
+  const MAX = 1.6;
+
+  function applyScale() {
+    letter.style.transform = `scale(${scale})`;
+  }
+
+  document.getElementById('zoomIn').addEventListener('click', e => {
+    e.stopPropagation();
+    scale = Math.min(MAX, +(scale + STEP).toFixed(2));
+    applyScale();
+  });
+
+  document.getElementById('zoomOut').addEventListener('click', e => {
+    e.stopPropagation();
+    scale = Math.max(MIN, +(scale - STEP).toFixed(2));
+    applyScale();
+  });
+
+  document.getElementById('zoomReset').addEventListener('click', e => {
+    e.stopPropagation();
+    scale = 1;
+    applyScale();
+  });
+})();
+
+/* ─────────────────────────────────────────
+   3. PUFF OF HEARTS
+───────────────────────────────────────── */
+(function() {
+  const HEARTS = ['❤️','💕','💗','💓','🩷'];
+  const COLORS_count = 6; // hearts per puff
+  const zoomBtns = document.querySelectorAll('.zoom-btn');
+
+  function spawnPuff(x, y) {
+    for (let i = 0; i < 8; i++) {
+      const el = document.createElement('span');
+      el.className = 'puff-heart';
+      el.textContent = HEARTS[Math.floor(Math.random() * HEARTS.length)];
+
+      const size = 15 + Math.random() * 18; // 15-33px
+      // Random direction: some go up, some diagonal
+      const angle = (Math.random() * 360) * (Math.PI / 180);
+      const dist = 40 + Math.random() * 80;
+      const dx = Math.cos(angle) * dist;
+      const dy = Math.sin(angle) * dist - 30; // bias upward
+
+      el.style.cssText = `
+        left: ${x - size / 2}px;
+        top: ${y - size / 2}px;
+        font-size: ${size}px;
+        --dx: ${dx}px;
+        --dy: ${dy}px;
+        animation-duration: ${1.2 + Math.random() * 0.6}s;
+      `;
+
+      document.body.appendChild(el);
+      el.addEventListener('animationend', () => el.remove());
+    }
+  }
+
+  // Click handler
+  document.addEventListener('click', e => {
+    // Don't puff if clicking zoom buttons
+    if (e.target.closest('#zoom-controls')) return;
+    spawnPuff(e.clientX, e.clientY);
+  });
+
+  // Touch handler
+  document.addEventListener('touchstart', e => {
+    if (e.target.closest('#zoom-controls')) return;
+    const t = e.touches[0];
+    spawnPuff(t.clientX, t.clientY);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>
